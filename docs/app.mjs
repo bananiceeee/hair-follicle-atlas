@@ -128,22 +128,40 @@ async function drawMembership(symbol,id) {
   }
 }
 
-function drawSummary(data, result, split) {
-  const groups = split ? [[0,'L'],[1,'H']] : [[null,'All']];
+function downloadSummary(gene, kind, types, groups) {
+  const rows = [['gene','atlas','cell_type','condition','total_cells','detected_cells','percent_detected']];
+  for (const [condition,counts] of groups) {
+    counts.forEach(([total,detected],i) => {
+      rows.push([gene,kind,types[i][0],condition,total,detected,
+        total ? (100 * detected / total).toFixed(6) : '']);
+    });
+  }
+  const escape = (value) => '"' + String(value).replaceAll('"','""') + '"';
+  const csv = rows.map((row) => row.map(escape).join(',')).join('\r\n') + '\r\n';
+  const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  const link = node('a');
+  link.href = url;
+  link.download = gene.replace(/[^a-z0-9._-]/gi,'_') + '_' + kind + '_expression_detection.csv';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+}
+
+function drawSummary(data, result, split, gene, kind) {
   const counts = data.types.map(() => [[0,0],[0,0]]);
   for (let i = 0; i < data.cells; ++i) {
     const entry = counts[data.type[i]][data.condition[i]];
     ++entry[0];
     if (result.expression[i] > 0) ++entry[1];
   }
+  const allCounts = counts.map(([low,high]) => low.map((value,j) => value + high[j]));
+  const splitCounts = [['L',counts.map(([low]) => low)],['H',counts.map(([,high]) => high)]];
+  const groups = split ? splitCounts : [['All',allCounts]];
   const grid = node('div','','summary-grid');
-  for (const [condition,label] of groups) {
+  for (const [label,groupCounts] of groups) {
     const column = node('div');
     if (split) column.append(node('h4',label));
     data.types.forEach(([name,color], i) => {
-      const [total,detected] = condition === null
-        ? counts[i][0].map((value,j) => value + counts[i][1][j])
-        : counts[i][condition];
+      const [total,detected] = groupCounts[i];
       const percent = total ? 100 * detected / total : 0;
       const row = node('div','','summary-row');
       const track = node('span','','summary-track');
@@ -157,7 +175,13 @@ function drawSummary(data, result, split) {
     });
     grid.append(column);
   }
-  summary.append(node('h3','Cells with detected expression by cell type'),grid);
+  const heading = node('div','','summary-heading');
+  const download = node('button','Download CSV');
+  download.type = 'button';
+  download.addEventListener('click',() =>
+    downloadSummary(gene,kind,data.types,[['All',allCounts],...splitCounts]));
+  heading.append(node('h3','Cells with detected expression by cell type'),download);
+  summary.append(heading,grid);
   summary.hidden = false;
 }
 
@@ -195,7 +219,7 @@ async function render() {
       umap(data,result,1,'H · High density');
     } else umap(data,result,null,names[kind]);
     drawLegend(data,result);
-    if (result) drawSummary(data,result,view === 'split');
+    if (result) drawSummary(data,result,view === 'split',canonical,kind);
   } catch (error) {
     if (id === revision) status.textContent = error.message + '. Please reload or try again.';
   }
