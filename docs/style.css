@@ -42,3 +42,11 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);paddi
 .summary-row span:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .summary-track{height:.5rem;background:#eef2f0;border-radius:2px;overflow:hidden}
 .summary-bar{display:block;height:100%}
+
+.membership{margin-bottom:1rem}
+.membership h2{font-size:1.05rem;margin:0}
+#membership-status,.membership-note{font-size:.81rem;color:var(--muted);margin:.4rem 0}
+#membership-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,188px),1fr));gap:.35rem;margin:.65rem 0}
+.membership-item{padding:.43rem .55rem;background:#f3f6f4;border-radius:.32rem;display:grid;gap:.12rem;font-size:.77rem}
+.membership-item span{color:var(--muted)}
+.membership-item .membership-hit{color:var(--teal);font-weight:650}

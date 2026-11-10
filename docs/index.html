@@ -23,6 +23,12 @@
     <datalist id="genes"></datalist>
     <div class="examples">Try <button type="button" data-gene="Krt79">Krt79</button> <button type="button" data-gene="Il11ra1">Il11ra1</button> <button type="button" data-gene="Nr4a1">Nr4a1</button></div>
   </form>
+  <section class="panel membership" aria-labelledby="membership-title">
+    <h2 id="membership-title">Goat gene-set membership</h2>
+    <p id="membership-status" role="status">Loading gene sets…</p>
+    <div id="membership-grid"></div>
+    <p class="membership-note">The seven original top-50 sets use goat bulk RNA-seq data. The goat-skin match indicates whether that member was available in the goat single-cell reference used for scoring. This lookup compares gene symbols without regard to case and does not establish orthology.</p>
+  </section>
   <div class="toolbar">
     <div class="switch" aria-label="Atlas">
       <button type="button" data-atlas="skin" aria-pressed="true">Whole skin</button>

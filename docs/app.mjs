@@ -13,6 +13,7 @@ let mode = ['split','annotation'].includes(query.get('view')) ? query.get('view'
 let revision = 0;
 const atlasCache = new Map();
 let expressionCache;
+let geneSets;
 const names = {skin:'Whole skin', follicle:'Hair follicle subset'};
 
 async function load(path, binary = false) {
@@ -100,6 +101,33 @@ function drawLegend(data,result) {
       node('span','Log-normalized expression'));
   } else legend.append(node('span','Grey · no detected expression'));
 }
+async function drawMembership(symbol,id) {
+  const message = select('#membership-status');
+  const grid = select('#membership-grid');
+  grid.replaceChildren();
+  message.textContent = 'Checking ' + symbol + '…';
+  try {
+    geneSets ??= load('./data/goat-top50.json').then(JSON.parse).catch((error) => {
+      geneSets = undefined;
+      throw error;
+    });
+    const sets = await geneSets;
+    if (id !== revision) return;
+    const key = symbol.toUpperCase();
+    const count = sets.filter(({members}) => Object.hasOwn(members,key)).length;
+    message.textContent = symbol + ' · ' + count + ' of ' + sets.length + ' top-50 sets by symbol';
+    for (const {label,members} of sets) {
+      const member = Object.hasOwn(members,key);
+      const state = member ? (members[key] ? 'Member · matched in goat skin' : 'Member · no goat-skin match') : 'Outside top 50';
+      const item = node('div','','membership-item');
+      item.append(node('strong',label),node('span',state,member ? 'membership-hit' : ''));
+      grid.append(item);
+    }
+  } catch {
+    if (id === revision) message.textContent = 'Gene-set membership is temporarily unavailable.';
+  }
+}
+
 function drawSummary(data, result, split) {
   const groups = split ? [[0,'L'],[1,'H']] : [[null,'All']];
   const counts = data.types.map(() => [[0,0],[0,0]]);
@@ -138,6 +166,7 @@ async function render() {
   for (const b of all('[data-atlas]')) b.setAttribute('aria-pressed',b.dataset.atlas === kind);
   for (const b of all('[data-view]')) b.setAttribute('aria-pressed',b.dataset.view === view);
   status.textContent = 'Loading…';
+  drawMembership(geneInput.value.trim(),id);
   plots.replaceChildren(); legend.replaceChildren();
   summary.replaceChildren(); summary.hidden = true;
   try {

@@ -13,3 +13,7 @@ Serve the published directory using any static HTTP server. For example, run `py
 Each atlas has a gene index, cell type palette, anonymous UMAP coordinates with cell-type and L/H codes, and gzip-compressed expression shards of up to 24 genes. Only the selected gene's shard is fetched. The source RDS objects and raw sequencing files are separate from this repository.
 
 `tools/export.R` exports the two frozen analysis objects and verifies annotation counts against the figure source tables. Run `node tools/verify.mjs` to check the published payloads.
+
+## Goat gene-set membership
+
+The membership lookup uses the seven original top-50 input lists and distinguishes members matched in the goat skin reference. The lookup compares mouse and goat gene symbols case-insensitively. A symbol match alone does not establish orthology. Rebuild the compact lookup with `python tools/export_gene_sets.py PATH_TO_FIG1_SOURCE_DATA` using the original and matched member CSV files from Figure 1.
