@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Explore gene expression in paired low- and high-density mouse hair follicle regeneration sites.">
+<title>Hair Follicle Regeneration Atlas</title>
+<link rel="stylesheet" href="./style.css">
+<script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<header class="hero">
+  <div class="shell">
+    <p class="kicker">MOUSE SKIN · SINGLE-CELL RNA-SEQ</p>
+    <h1>Hair Follicle Regeneration Atlas</h1>
+    <p>Search a gene to explore its expression in paired low- and high-density regeneration sites.</p>
+  </div>
+</header>
+<main class="shell">
+  <form id="search">
+    <label for="gene">Mouse gene symbol</label>
+    <div class="search-row"><input id="gene" list="genes" type="search" placeholder="e.g. Krt79" required autocomplete="off"><button type="submit" class="submit">Show expression</button></div>
+    <datalist id="genes"></datalist>
+    <div class="examples">Try <button type="button" data-gene="Krt79">Krt79</button> <button type="button" data-gene="Il11ra1">Il11ra1</button> <button type="button" data-gene="Nr4a1">Nr4a1</button></div>
+  </form>
+  <div class="toolbar">
+    <div class="switch" aria-label="Atlas">
+      <button type="button" data-atlas="skin" aria-pressed="true">Whole skin</button>
+      <button type="button" data-atlas="follicle" aria-pressed="false">Hair follicle subset</button>
+    </div>
+    <div class="switch" aria-label="Display mode">
+      <button type="button" data-view="expression" aria-pressed="true">Expression</button>
+      <button type="button" data-view="split" aria-pressed="false">L / H</button>
+      <button type="button" data-view="annotation" aria-pressed="false">Cell types</button>
+    </div>
+  </div>
+  <section class="panel" aria-labelledby="plot-title">
+    <div class="caption"><h2 id="plot-title">Expression UMAP</h2><p id="status" role="status" aria-live="polite">Loading atlas…</p></div>
+    <div id="plots"></div>
+    <div id="legend"></div>
+    <section id="expression-summary" hidden></section>
+  </section>
+  <details class="about">
+    <summary>About the atlas</summary>
+    <p>Full-thickness reconstructed skin was sampled at day 30 from three mice, each with one low-density (L) and one high-density (H) site. Whole skin contains 27,051 mouse cells. The hair follicle subset contains 6,026 cells.</p>
+    <p>The viewer uses the study's saved UMAP coordinates and final annotations. RNA values are library-size normalized to 10,000 and log1p-transformed. For the display color scale, each gene uses the 99th percentile of its positive values in the selected atlas. Split panels use the same color scale. Grey points indicate no detected expression. Expression values are stored to the nearest 1/4096 of a log-normalized unit.</p>
+  </details>
+</main>
+<footer class="shell">Hair Follicle Regeneration Atlas</footer>
+</body>
+</html>
